@@ -84,11 +84,12 @@ app.post('/api/duel', (req, res) => {
             res.status(200).send('You lost!')
         } else {
             playerRecord.losses++
-            //there was a bug here, lets see if it still happens
-            // if (wins === 0) {
-            //     rollbar.warning('Wins counter is not increasing')
-            // }
             res.status(200).send('You won!')
+            //moved rollbar after the res.status to see if we can make it work
+            //there was a bug here, lets see if it still happens
+            if (wins === 0) {
+                rollbar.warning('Wins counter is not increasing')
+            }
             
         }
     } catch (error) {
