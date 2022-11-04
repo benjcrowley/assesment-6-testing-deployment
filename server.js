@@ -29,8 +29,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './public/index.html'))
   })
 // middleware to serve static files (Dueling... wouldnt change to you won or you lost, counter would increase if i refreshed the page after a battle)
-app.use('/js', express.static(path.join(__dirname, 'public/index.js')))
+// app.use('/js', express.static(path.join(__dirname, 'public/index.js')))
 //pushing to get hub to see if this fixed it
+//commented it out, because when i added the rollbar back in, the bug continued. now i have both rollbar and static commented out
 
 app.get('/api/robots', (req, res) => {
     try {
@@ -84,9 +85,9 @@ app.post('/api/duel', (req, res) => {
         } else {
             playerRecord.losses++
             //there was a bug here, lets see if it still happens
-            if (wins === 0) {
-                rollbar.warning('Wins counter is not increasing')
-            }
+            // if (wins === 0) {
+            //     rollbar.warning('Wins counter is not increasing')
+            // }
             res.status(200).send('You won!')
             
         }
