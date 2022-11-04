@@ -28,13 +28,15 @@ app.get('/styles', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './public/index.html'))
   })
-
+// middleware to serve static files (Dueling... wouldnt change to you won or you lost, counter would increase if i refreshed the page after a battle)
+app.use('/js', express.static(path.join(__dirname, 'public/index.js')))
+//pushing to get hub to see if this fixed it
 
 app.get('/api/robots', (req, res) => {
     try {
         res.status(200).send(botsArr)
     } catch (error) {
-        rollbar.critical('bots are not being sent')
+        rollbar.critical('bots are not being sent for See All Bots')
         console.log('ERROR GETTING BOTS', error)
         res.sendStatus(400)
     }
@@ -81,10 +83,10 @@ app.post('/api/duel', (req, res) => {
             res.status(200).send('You lost!')
         } else {
             playerRecord.losses++
-            //there was a bug here, lets see if it still happens
-            if (wins === 0) {
-                rollbar.warning('Wins counter is not increasing')
-            }
+            // //there was a bug here, lets see if it still happens
+            // if (wins === 0) {
+            //     rollbar.warning('Wins counter is not increasing')
+            // }
             res.status(200).send('You won!')
             
         }
