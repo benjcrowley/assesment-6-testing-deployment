@@ -5,6 +5,17 @@ const {bots, playerRecord} = require('./data')
 const {shuffleArray} = require('./utils')
 
 app.use(express.json())
+//include and initialize rollbar
+// include and initialize the rollbar library with your access token
+var Rollbar = require('rollbar')
+var rollbar = new Rollbar({
+  accessToken: '307008ee0f1146a59533bd2d054d0bbe',
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+})
+
+// record a generic message and send it to Rollbar
+rollbar.log('Hello world!')
 
 //middleware to serve the files from the public folder
 app.get('/js', (req, res) => {
@@ -18,11 +29,12 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './public/index.html'))
   })
 
-  
+
 app.get('/api/robots', (req, res) => {
     try {
         res.status(200).send(botsArr)
     } catch (error) {
+        rollbar.critical('bots are not being sent')
         console.log('ERROR GETTING BOTS', error)
         res.sendStatus(400)
     }
@@ -33,8 +45,14 @@ app.get('/api/robots/five', (req, res) => {
         let shuffled = shuffleArray(bots)
         let choices = shuffled.slice(0, 5)
         let compDuo = shuffled.slice(6, 8)
+        if(compDuo.length != 2) {
+            rollbar.warning('the match is not fair')
+        }
+        // add rollbar info to let us know how many times our game is played
+        rollbar.info('someone played Duel Duo')
         res.status(200).send({choices, compDuo})
     } catch (error) {
+        rollbar.critical('choices are not displayed')
         console.log('ERROR GETTING FIVE BOTS', error)
         res.sendStatus(400)
     }
@@ -63,7 +81,12 @@ app.post('/api/duel', (req, res) => {
             res.status(200).send('You lost!')
         } else {
             playerRecord.losses++
+            //there was a bug here, lets see if it still happens
+            if (wins === 0) {
+                rollbar.warning('Wins counter is not increasing')
+            }
             res.status(200).send('You won!')
+            
         }
     } catch (error) {
         console.log('ERROR DUELING', error)
@@ -80,8 +103,8 @@ app.get('/api/player', (req, res) => {
     }
 })
 
-const port = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000
 
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`)
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`)
 })
